@@ -30,7 +30,6 @@ app.all('*', setupAsyncLocalStorage)
 
 app.use('/api/auth', authRoutes)
 app.use('/api/user', userRoutes)
-app.use('/api/review', reviewRoutes)
 setupSocketAPI(http)
 
 // Make every server-side-route to match the index.html

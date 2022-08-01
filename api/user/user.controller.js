@@ -4,6 +4,7 @@ const logger = require('../../services/logger.service')
 
 async function getUser(req, res) {
     try {
+        console.log(req.params);
         const user = await userService.getById(req.params.id)
         res.send(user)
     } catch (err) {
@@ -36,6 +37,15 @@ async function deleteUser(req, res) {
     }
 }
 
+async function addUser(req, res) {
+    try {
+      return await userService.add(req.body)
+    } catch (err) {
+        logger.error('Failed to add user', err)
+        res.status(500).send({ err: 'Failed to delete user' })
+    }
+}
+
 async function updateUser(req, res) {
     try {
         const user = req.body
@@ -51,5 +61,6 @@ module.exports = {
     getUser,
     getUsers,
     deleteUser,
-    updateUser
+    updateUser,
+    addUser
 }

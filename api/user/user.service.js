@@ -34,15 +34,11 @@ async function query(filterBy = {}) {
 
 async function getById(userId) {
     try {
-        const collection = await dbService.getCollection('user')
+        console.log(userId);
+        const collection = await dbService.getCollection('users')
         const user = await collection.findOne({ _id: ObjectId(userId) })
         delete user.password
 
-        user.givenReviews = await reviewService.query({ byUserId: ObjectId(user._id) })
-        user.givenReviews = user.givenReviews.map(review => {
-            delete review.byUser
-            return review
-        })
 
         return user
     } catch (err) {
@@ -77,9 +73,12 @@ async function update(user) {
         const userToSave = {
             _id: ObjectId(user._id), // needed for the returnd obj
             fullname: user.fullname,
-            score: user.score,
+            username:user.username,
+            email:user.email,
+            friends:user.friends,
+            msgs:user.msgs
         }
-        const collection = await dbService.getCollection('user')
+        const collection = await dbService.getCollection('users')
         await collection.updateOne({ _id: userToSave._id }, { $set: userToSave })
         return userToSave
     } catch (err) {
@@ -96,6 +95,8 @@ async function add(user) {
             password: user.password,
             fullname: user.fullname,
             email:user.email,
+            msgs:[],
+            friends:[],
             isAdmin:false
         }
         const collection = await dbService.getCollection('users')

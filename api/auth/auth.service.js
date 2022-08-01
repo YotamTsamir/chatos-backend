@@ -9,22 +9,18 @@ async function login(username, password) {
 
     const user = await userService.getByUsername(username)
     if (!user) return Promise.reject('Invalid username or password')
-    // TODO: un-comment for real login
-    // const match = await bcrypt.compare(password, user.password)
-    // if (!match) return Promise.reject('Invalid username or password')
+    // const pass = await bcrypt.compare(user.password,password)
+    // console.log(pass);
+    if (password !== user.password) return Promise.reject('Invalid password')
 
     delete user.password
     user._id = user._id.toString()
     return user
 }
 
-// (async ()=>{
-//     await signup('bubu', '123', 'Bubu Bi')
-//     await signup('mumu', '123', 'Mumu Maha')
-// })()
-    
 
-async function signup({username, password, fullname, imgUrl}) {
+
+async function signup({ username, password, fullname, imgUrl }) {
     const saltRounds = 10
     logger.debug(`auth.service - signup with username: ${username}, fullname: ${fullname}`)
     if (!username || !password || !fullname) return Promise.reject('Missing required signup information')
@@ -33,21 +29,25 @@ async function signup({username, password, fullname, imgUrl}) {
     if (userExist) return Promise.reject('Username already taken')
 
     const hash = await bcrypt.hash(password, saltRounds)
-    return userService.add({ username, password: hash, fullname, imgUrl })
+    return userService.add({ username, password, fullname })
 }
 
 
 function getLoginToken(user) {
-    return cryptr.encrypt(JSON.stringify(user))    
+    return cryptr.encrypt(JSON.stringify(user._id))
 }
 
-function validateToken(loginToken) {
+async function validateToken(loginToken) {
     try {
         const json = cryptr.decrypt(loginToken)
-        const loggedinUser = JSON.parse(json)
+        const id = JSON.parse(json)
+        const user = await userService.getById(id)
+        console.log(user);
+        const loggedinUser = user
+        // const loggedinUser = JSON.parse(json)
         return loggedinUser
 
-    } catch(err) {
+    } catch (err) {
         console.log('Invalid login token')
     }
     return null
